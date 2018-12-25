@@ -1,0 +1,52 @@
+dir:
+  data-root: db
+  file-root: src
+  view: view
+  output: dist
+
+data-parser:
+  - suffix: .yaml
+    filters:
+      - parser: YamlParser
+        config:
+  - suffix: .json
+    filters:
+      - parser: JsonParser
+        config:
+
+file-renderer:
+  - suffix: .htm .html
+    filters:
+      - engine: DefaultHtmlEngine
+        config:
+          layouts-dir: ${dir.view}
+        post-hooks:
+  - suffix: .md
+    filters:
+      - engine: MarkdownEngine
+        config:
+          code-highlighter: rouge
+  - suffix: .scss
+    filters:
+      - engine: ScssEngine
+        config:
+
+pre-hooks:
+
+post-hooks:
+  - callable: FeedGenerator
+    config:
+      path: /atom.xml
+
+default:
+
+
+server:
+  local:
+    host: 127.0.0.1
+    port: 4000
+    root: ""
+  remote:
+    host: weboot.lan
+    port: 80
+    root: ""
