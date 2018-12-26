@@ -4,7 +4,7 @@ dir:
   view: view
   output: dist
 
-data-parser:
+data-parsers:
   - suffix: .yaml
     filters:
       - parser: YamlParser
@@ -14,19 +14,22 @@ data-parser:
       - parser: JsonParser
         config:
 
-file-renderer:
-  - suffix: .htm .html
+file-handlers:
+  - key:
+    suffix: .htm .html
     filters:
       - engine: DefaultHtmlEngine
         config:
           layouts-dir: ${dir.view}
         post-hooks:
-  - suffix: .md
+  - key: md
+    suffix: .md
     filters:
       - engine: MarkdownEngine
         config:
           code-highlighter: rouge
-  - suffix: .scss
+  - key:
+    suffix: .scss
     filters:
       - engine: ScssEngine
         config:

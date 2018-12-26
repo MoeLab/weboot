@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Weboot
-  class Context
-
-
+  class Filter
 
   end
 end
