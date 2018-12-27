@@ -1,0 +1,29 @@
+load-config-file
+before-process
+load-db
+    traverse-data-dir
+    sort
+    read-file
+    parse-data
+    merge-data
+scan-file
+    traverse-file-root-dir
+    for-dir
+        dir.load-metadata
+        traverse-dir-recursively
+    for-file
+        file.load-metadata
+for-file
+    before-generate
+    page.generate
+        merge-config
+        before-pipeline
+        pipeline.run
+            for-filter
+                before-filter
+                filter.run
+                after-filter
+        after-pipeline
+    after-generate
+    page.output
+after-process

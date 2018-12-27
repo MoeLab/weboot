@@ -9,7 +9,7 @@ module Weboot
     end
 
     # replaced if duplicate
-    def merge(vars)
+    def merge!(vars)
       @vars.merge!(vars)
     end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Weboot
-  class Handler
+  class Pipeline
 
     def initialize(key)
       @key = key
@@ -12,7 +12,7 @@ module Weboot
       @filters.push(filter)
     end
 
-    def process(file)
+    def run(file)
 
     end
 

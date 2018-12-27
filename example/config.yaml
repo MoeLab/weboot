@@ -1,8 +1,8 @@
-dir:
-  data-root: db
-  file-root: src
-  view: view
-  output: dist
+data:
+  data-dir: db
+  file-root-dir: src
+  view-root-dir: view
+  output-root-dir: dist
 
 data-parsers:
   - suffix: .yaml
@@ -14,35 +14,54 @@ data-parsers:
       - parser: JsonParser
         config:
 
-file-handlers:
-  - key:
-    suffix: .htm .html
-    filters:
-      - engine: DefaultHtmlEngine
-        config:
-          layouts-dir: ${dir.view}
-        post-hooks:
-  - key: md
-    suffix: .md
-    filters:
-      - engine: MarkdownEngine
-        config:
-          code-highlighter: rouge
-  - key:
-    suffix: .scss
-    filters:
-      - engine: ScssEngine
-        config:
+filters:
+  LayeredFilter:
+    alias: layered
+    config:
+      layouts-dir: ${view-root-dir}
+  MarkdownToHtmlFilter:
+    config:
+      code-highlighter: rouge
+  ScssFilter:
+    config:
 
-pre-hooks:
-
-post-hooks:
-  - callable: FeedGenerator
+hooks:
+  FeedGenerator:
+    alias: feed
     config:
       path: /atom.xml
 
-default:
+pipeline:
+  - name: example # 可在 scope 里引用 pipeline: <key> 为其单独指定一个处理器
+    suffix: .example
+    filters:
+      - name: NopFilter
+        config:
+        pre-hooks:
+          - name: NopHook
+            config:
+              hello: world
+        post-hooks:
+          - nop
+      - nop
+  - suffix: .htm .html
+    filters:
+      - layered
+  - name: md
+    suffix: .md
+    filters:
+      - MarkdownToHtmlFilter
+      - layered
+  - suffix: .scss
+    filters:
+      - ScssFilter
 
+before-all:
+  - nop
+after-all:
+  - nop
+  - name: feed
+    config:
 
 server:
   local:

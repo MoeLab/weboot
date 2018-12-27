@@ -15,11 +15,36 @@ module Weboot
       @f
     end
 
-    def load_metadata
-      open_file
-      @f.rewind
-      firstline = @f.readline
+    METADATA_BOUND = '---'.freeze
 
+    def load_metadata
+      @f.rewind
+      begin
+        firstline = @f.readline
+        return nil unless firstline.start_with?(METADATA_BOUND)
+        data_format = firstline[3..-1].rstrip!
+        raw = StringIO.new
+        until @f.eof? do
+          line = @f.readline
+          break if line.start_with?(METADATA_BOUND)
+          raw << line
+        end
+        data = raw.string
+        @scope.merge!(parse_metadata(data_format, data))
+      rescue EOFError
+      end
+    end
+
+    # @param format unused
+    def parse_metadata(format, data)
+      yaml = YAML.safe_load(data)
+      @scope.merge!(yaml)
+    end
+
+    S_HANDLER = 'pipeline'.freeze
+
+    def pipeline
+      @scope[S_HANDLER]
     end
 
     def fullpath

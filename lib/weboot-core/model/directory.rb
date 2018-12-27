@@ -14,7 +14,7 @@ module Weboot
 
     def load_metadata(fullname)
       vars = YAML.load_file(fullname)
-      @scope.merge(vars)
+      @scope.merge!(vars)
     end
 
   end
