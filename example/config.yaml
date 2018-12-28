@@ -1,48 +1,65 @@
+plugin-dir: plugins
+
+# config for data / data-source
+
 data:
-  data-dir: db
-  file-root-dir: src
-  view-root-dir: view
-  output-root-dir: dist
+  view-dir: view
 
-data-parsers:
-  - suffix: .yaml
-    filters:
-      - parser: YamlParser
-        config:
+data-source-parsers:
   - suffix: .json
-    filters:
-      - parser: JsonParser
-        config:
+    provider: builtin://JsonAdapter
+  - suffix: .yaml
+    provider: builtin://YamlAdapter
+    config:
+      extname: yaml
+  - suffix: .yml
+    config:
+      provider: builtin://YamlAdapter
+      extname: yml
+  - suffix: .csv
+      provider: builtin://CsvAdapter
+  - suffix: .restapi
+    provider: plugin://::WebootPlugin::Parser::RestApiParser
 
-filters:
-  LayeredFilter:
-    alias: layered
-    config:
-      layouts-dir: ${view-root-dir}
-  MarkdownToHtmlFilter:
-    config:
-      code-highlighter: rouge
-  ScssFilter:
-    config:
+data-source:
+  - file://./data
+
+# config for action hook
 
 hooks:
-  FeedGenerator:
-    alias: feed
+  nop:
+    provider: builtin://NopHook
     config:
-      path: /atom.xml
+      hello: world
+  feed: plugin://::WebootPlugin::Generator::FeedGenerator
 
-pipeline:
+# config for filters / pipelines
+
+filters:
+  nop: builtin://NopFilter
+  layered:
+    provider: builtin://LayeredFilter
+    config:
+      layouts-dir: ${data.view-dir}
+  markdown_to_html:
+    provider: builtin://MarkdownToHtmlFilter
+    config:
+      code-highlighter: rouge
+  scss: plugin://::WebootPlugin::Filter::ScssFilter
+
+pipelines:
   - name: example # 可在 scope 里引用 pipeline: <key> 为其单独指定一个处理器
     suffix: .example
     filters:
-      - name: NopFilter
+      - name: nop
         config:
-        pre-hooks:
-          - name: NopHook
-            config:
-              hello: world
-        post-hooks:
-          - nop
+          hello: world
+      - nop
+    pre-hooks:
+      - name: nop
+        config:
+          hello: world
+    post-hooks:
       - nop
   - suffix: .htm .html
     filters:
@@ -50,18 +67,30 @@ pipeline:
   - name: md
     suffix: .md
     filters:
-      - MarkdownToHtmlFilter
+      - markdown_to_html
       - layered
   - suffix: .scss
     filters:
-      - ScssFilter
+      - scss
 
-before-all:
-  - nop
-after-all:
-  - nop
-  - name: feed
-    config:
+# config for generating
+
+source-dir: src
+target-dir: out
+
+default-page-config:
+  weboot: WEBOOT
+
+generating:
+  pre-hooks:
+    - nop
+  post-hooks:
+    - name: feed
+      config:
+        type: atom
+        fullpath: /atom.xml
+
+# config for preview / deployment
 
 server:
   local:

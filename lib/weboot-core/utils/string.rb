@@ -3,10 +3,9 @@ module Weboot
   def parse_string(format, vars)
     format.gsub(/\${([^}]+)}/) do |x|
       keys = x.split('.')
-      var = vars
-      keys.each do |key|
+      keys.inject(vars) do |var, key|
         break x unless var.key?(key)
-        var = var[key]
+        var[key]
       end
     end
   end

@@ -1,29 +1,40 @@
+
+data 是全局可读可写的数据表，以键值对的形式存储。
+
+```raw
+file --pipeline--> page
+```
+
+config 是配置，配置分为全局配置和文件配置和本地两者
+
+```raw
 load-config-file
-before-process
-load-db
+load-data
     traverse-data-dir
     sort
     read-file
     parse-data
     merge-data
-scan-file
+scan-files
     traverse-file-root-dir
-    for-dir
+    for dir in subdirs
         dir.load-metadata
         traverse-dir-recursively
-    for-file
+    for file in files
         file.load-metadata
-for-file
-    before-generate
-    page.generate
-        merge-config
-        before-pipeline
-        pipeline.run
-            for-filter
-                before-filter
-                filter.run
-                after-filter
-        after-pipeline
-    after-generate
-    page.output
-after-process
+process-files
+    merge-config
+    pre-hooks
+    decide-pipeline
+    pipeline.run
+        page.from file
+        pre-hooks
+        for filter in filters
+            pre-hooks config, page, filter
+            page = filter.run page
+            post-hooks config, page
+        post-hooks
+        page.output
+    post-hooks
+after-weboot
+```

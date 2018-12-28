@@ -3,7 +3,7 @@
 module Weboot
   class Directory
 
-    METADATA_FILENAME = '_metadata.yaml'.freeze
+    METADATA_FILENAME = '_config.yaml'.freeze
 
     def initialize(parent_scope, path, filenames)
       @scope = Scope.new(parent_scope)
