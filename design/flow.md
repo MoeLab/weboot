@@ -1,6 +1,4 @@
 
-data 是全局可读可写的数据表，以键值对的形式存储。
-
 ```raw
 file --pipeline--> page
 ```

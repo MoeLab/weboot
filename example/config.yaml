@@ -1,28 +1,37 @@
+# =============================
+# site config of weboot project
+# =============================
+
+# config for plugin
+
 plugin-dir: plugins
 
-# config for data / data-source
+# config for data / datasource
 
-data:
-  view-dir: view
-
-data-source-parsers:
-  - suffix: .json
-    provider: builtin://JsonAdapter
-  - suffix: .yaml
-    provider: builtin://YamlAdapter
+datasource-config:
+  file:
+    provider: builtin://FileDatasource
     config:
-      extname: yaml
-  - suffix: .yml
+      dir: data
+      readers:
+        - suffix: .json
+          provider: builtin://Stream::JsonReader
+        - suffix: .yaml
+          provider: builtin://Stream::YamlReader
+          config:
+            extname: yaml
+        - suffix: .yml
+          config:
+            provider: builtin://Stream::YamlAdapter
+            extname: yml
+        - suffix: .csv
+            provider: builtin://Stream::CsvAdapter
+  random:
+    provider: builtin://RandomDatasource
     config:
-      provider: builtin://YamlAdapter
-      extname: yml
-  - suffix: .csv
-      provider: builtin://CsvAdapter
-  - suffix: .restapi
-    provider: plugin://::WebootPlugin::Parser::RestApiParser
+      seed: 0
 
-data-source:
-  - file://./data
+primary-datasource: file
 
 # config for action hook
 
@@ -40,7 +49,7 @@ filters:
   layered:
     provider: builtin://LayeredFilter
     config:
-      layouts-dir: ${data.view-dir}
+      layouts-dir: view
   markdown_to_html:
     provider: builtin://MarkdownToHtmlFilter
     config:
@@ -53,12 +62,12 @@ pipelines:
     filters:
       - name: nop
         config:
-          hello: world
+          weboot: WEBOOT
       - nop
     pre-hooks:
       - name: nop
         config:
-          hello: world
+          weboot: WEBOOT
     post-hooks:
       - nop
   - suffix: .htm .html
@@ -73,7 +82,7 @@ pipelines:
     filters:
       - scss
 
-# config for generating
+# config for rendering
 
 source-dir: src
 target-dir: out
@@ -81,7 +90,7 @@ target-dir: out
 default-page-config:
   weboot: WEBOOT
 
-generating:
+rendering:
   pre-hooks:
     - nop
   post-hooks:
