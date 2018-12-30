@@ -6,69 +6,58 @@
 
 plugin-dir: plugins
 
-# config for data / datasource
+# about datasource
 
 datasource-config:
   file:
-    provider: builtin://FileDatasource
+    provider: DataSource::FileDataSource
     config:
       dir: data
       readers:
         - suffix: .json
-          provider: builtin://Stream::JsonReader
+          provider: Reader::JsonReader
         - suffix: .yaml
-          provider: builtin://Stream::YamlReader
+          provider: Reader::YamlReader
           config:
             extname: yaml
         - suffix: .yml
           config:
-            provider: builtin://Stream::YamlAdapter
+            provider: Reader::YamlReader
             extname: yml
         - suffix: .csv
-            provider: builtin://Stream::CsvAdapter
+            provider: Reader::CsvReader
   random:
-    provider: builtin://RandomDatasource
+    provider: DataSource::RandomDataSource
     config:
       seed: 0
 
 primary-datasource: file
 
-# config for action hook
-
-hooks:
-  nop:
-    provider: builtin://NopHook
-    config:
-      hello: world
-  feed: plugin://::WebootPlugin::Generator::FeedGenerator
-
-# config for filters / pipelines
+# about rendering
 
 filters:
-  nop: builtin://NopFilter
+  nop: Filter::NopFilter
   layered:
-    provider: builtin://LayeredFilter
+    provider: Filter::LayeredFilter
     config:
       layouts-dir: view
   markdown_to_html:
-    provider: builtin://MarkdownToHtmlFilter
+    provider: Filter::MarkdownToHtmlFilter
     config:
       code-highlighter: rouge
-  scss: plugin://::WebootPlugin::Filter::ScssFilter
+  scss: Plugin::Filter::ScssFilter
 
 pipelines:
-  - name: example # 可在 scope 里引用 pipeline: <key> 为其单独指定一个处理器
+  - name: example
     suffix: .example
     filters:
       - name: nop
         config:
-          weboot: WEBOOT
-      - nop
-    pre-hooks:
-      - name: nop
-        config:
-          weboot: WEBOOT
-    post-hooks:
+          hooks:
+            - name: nop
+              config:
+                weboot: WEBOOT
+            - nop
       - nop
   - suffix: .htm .html
     filters:
@@ -82,24 +71,34 @@ pipelines:
     filters:
       - scss
 
-# config for rendering
-
 source-dir: src
 target-dir: out
 
 default-page-config:
   weboot: WEBOOT
 
-rendering:
-  pre-hooks:
-    - nop
-  post-hooks:
-    - name: feed
-      config:
-        type: atom
-        fullpath: /atom.xml
+# about hooks
 
-# config for preview / deployment
+hooks:
+  nop:
+    provider: Hook::NopHook
+    config:
+      weboot: WEBOOT
+  feed: Plugin::Generator::FeedGenerator
+
+after-scanning:
+  - nop
+
+after-rendering:
+  - name: feed
+    config:
+      type: atom
+      fullpath: /atom.xml
+
+after-writing:
+  - nop
+
+# about preview & deployment
 
 server:
   local:

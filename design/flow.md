@@ -1,38 +1,40 @@
+# Flow 流程
+
+Weboot 的目的是从源文件生成、输出目标页面。
 
 ```raw
-file --pipeline--> page
+source file --rendering--> page --output--> target file
 ```
 
-config 是配置，配置分为全局配置和文件配置和本地两者
+Weboot 的工作分为以下几个阶段：
+
+1. 加载配置
+1. 加载数据源
+1. 扫描源文件，加载页面配置
+1. 生成页面
+1. 将页面写入文件
+
+详细工作过程如下：
 
 ```raw
-load-config-file
-load-data
-    traverse-data-dir
-    sort
-    read-file
-    parse-data
-    merge-data
-scan-files
-    traverse-file-root-dir
-    for dir in subdirs
-        dir.load-metadata
-        traverse-dir-recursively
-    for file in files
-        file.load-metadata
-process-files
-    merge-config
-    pre-hooks
-    decide-pipeline
-    pipeline.run
-        page.from file
-        pre-hooks
-        for filter in filters
-            pre-hooks config, page, filter
-            page = filter.run page
-            post-hooks config, page
-        post-hooks
-        page.output
-    post-hooks
-after-weboot
+weboot.run
+    load-site-config
+    datasources.each initialize
+    scanning
+        [source-dir, subdirs, sub-subdirs..].each
+            load-dir-config
+            file.each
+                load-file-header
+                merge-page-config
+        after-scanning
+    rendering
+        file.each
+            page.init
+            decide-pipeline
+            pipeline.run
+                filters.each run-on-page
+        after-rendering
+    writing
+        page.each write
+        after-writing
 ```

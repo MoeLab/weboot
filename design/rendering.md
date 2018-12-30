@@ -1,7 +1,7 @@
-# 构建
+# Rendering 页面生成
 
-## 钩子（Hook）
+构建阶段是
 
-## 流水线（Pipeline）
+## Pipeline 流水线
 
-## 过滤器（Filter）
+## Filter 过滤器
