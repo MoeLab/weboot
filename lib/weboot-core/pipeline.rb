@@ -1,9 +1,7 @@
-# frozen_string_literal: true
-
 module Weboot
   class Pipeline
 
-    def initialize(key)
+    def initialize(name, suffix, filters)
       @key = key
       @filters = Array.new
     end

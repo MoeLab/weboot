@@ -10,6 +10,7 @@ Weboot 的思路是，只给出生成静态网站所需的流程规则，尽可�
 - [配置](config.md)
 - [提供者](provider.md)
 - [数据源](datasource.md)
-- [页面生成](rendering.md)
+- [生成页面](rendering-phase.md)
+- [输出页面](writing-phase.md)
 - [钩子](hook.md)
 - [插件](plugin.md)

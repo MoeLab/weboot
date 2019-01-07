@@ -32,7 +32,7 @@ weboot.run
             page.init
             decide-pipeline
             pipeline.run
-                filters.each run-on-page
+                filters.each run-on page
         after-rendering
     writing
         page.each write
