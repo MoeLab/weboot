@@ -1,7 +1,7 @@
 module Weboot
   class HookBuilder < AbstractBuilder
 
-    INTERFACE_TYPE = ::Weboot::Interface::HookInterface
+    InterfaceType = Hook::HookInterface
 
   end
 end

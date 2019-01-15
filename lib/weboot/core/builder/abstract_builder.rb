@@ -3,42 +3,42 @@ module Weboot
     attr_reader :name, :provider_string, :provider
     attr_accessor :configs
 
-    INTERFACE_TYPE = nil
+    InterfaceType = nil
 
     def initialize(name)
       @name = name
-      @configs = []
+      @config_stack = ConfigStack.new
     end
 
     def settings=(settings)
-      @configs.clear
+      @config_stack.clear
       if settings.is_a?(String)
         @provider_string = settings
       else
-        @provider_string = settings[::Weboot::Constant::PROVIDER]
-        push_config(settings[::Weboot::Constant::CONFIG])
+        @provider_string = settings[:provider]
+        push_config(settings[:config])
       end
       @provider = ::Weboot.get_provider(@provider_string)
-      raise ArgumentError, 'provider must include %s for validation.' % (INTERFACE_TYPE.name) unless @provider.include?(INTERFACE_TYPE)
+      raise ArgumentError, 'provider must include %s for validation.' % (InterfaceType.name) unless @provider.include?(InterfaceType)
+      self
     end
 
     def push_config(config)
-      @configs.push(config) unless config.nil?
+      @config_stack.push(config)
+      self
     end
 
     def pop_config
-      @configs.pop
+      @config_stack.pop
     end
 
     def merged_config
-      @configs.inject({}) do | merged, config |
-        ::Weboot.merge(merged, config)
-      end
+      @config_stack.merge
     end
 
     def clone
       o = super.clone
-      o.configs = @configs.clone
+      @config_stack = @config_stack.clone
       o
     end
 

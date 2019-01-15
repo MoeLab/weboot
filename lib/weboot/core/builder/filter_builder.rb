@@ -1,7 +1,7 @@
 module Weboot
   class FilterBuilder < AbstractBuilder
 
-    INTERFACE_TYPE = ::Weboot::Interface::FilterInterface
+    InterfaceType = Filter::FilterInterface
 
   end
 end

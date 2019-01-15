@@ -21,11 +21,11 @@ datasource-config:
           config:
             extname: yaml
         - suffix: .yml
+          provider: Reader::YamlReader
           config:
-            provider: Reader::YamlReader
             extname: yml
         - suffix: .csv
-            provider: Reader::CsvReader
+          provider: Reader::CsvReader
   random:
     provider: DataSource::RandomDataSource
     config:

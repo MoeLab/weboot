@@ -10,10 +10,10 @@ module Weboot
       datasource_config = site_config['datasource-config']
       datasource_config.each do |name, settings|
         datasource = setup_datasource(name, settings)
-        DataHub.instance.add(name, datasource)
+        DataSourceManager.instance.add(name, datasource)
       end
       primary_datasource = site_config['primary-datasource']
-      DataHub.instance.primary_datasource = primary_datasource
+      DataSourceManager.instance.primary_datasource = primary_datasource
 
       hook_config = site_config['hooks']
       hook_config.each do |name, settings|
@@ -62,8 +62,8 @@ module Weboot
         name = settings
         config = nil
       else
-        name = settings[::Weboot::Constant::NAME]
-        config = settings[::Weboot::Constant::CONFIG]
+        name = settings[:name]
+        config = settings[:config]
       end
       hook_builder = Config.instance.get_hook_builder(name)
       hook_builder.clone

@@ -1,23 +1,21 @@
 module Weboot
   class Context
 
-    TOPIC_CONTEXT = 'context'.freeze
-
     def initialize(page_config)
       @page = page_config
     end
 
     def get_proxy(key)
-      case key.downcase!
-      when 'site'
+      case key
+      when :site
         Config.instance.site
-      when 'page'
+      when :page
         @page
-      when 'data'
-        DataHub.instance.primary_datasource
+      when :data
+        DataSourceManager.instance.primary_datasource_accessor
       when key.start_with?('data@')
         _, datasource_name = key.split('@', 2)
-        DataHub.instance.fetch(datasource_name)
+        DataSourceManager.instance.accessor(datasource_name)
       else
         raise IndexError, 'unknown top-level scope: %s' % (key)
       end
@@ -27,13 +25,13 @@ module Weboot
       begin
         proxy = get_proxy(key)
       rescue IndexError => e
-        Weboot.logger.warn(TOPIC_CONTEXT, e.message)
+        Weboot.logger.warn(:context, e.message)
         return nil
       end
       begin
         proxy.public_send(func, msg)
       rescue IndexError
-        Weboot.logger.warn(TOPIC_CONTEXT, 'key not found: %s' % (key))
+        Weboot.logger.warn(:context, 'key not found: %s' % (key))
         nil
       end
     end
