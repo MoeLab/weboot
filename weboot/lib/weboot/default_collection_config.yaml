@@ -1,0 +1,20 @@
+# ====================================
+# default dir config of weboot project
+# ====================================
+
+# enabled: true
+
+include-rules:
+  # default: true
+  force-include__merge: true
+  exclude__merge: true
+  exclude:
+    - rule: '/^_.*$/'
+      inheritable: true
+
+# =====================================
+# default page config of weboot project
+# =====================================
+
+page:
+  # enabled: true

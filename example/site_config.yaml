@@ -1,0 +1,65 @@
+# =============================
+# site config of weboot project
+# =============================
+
+# config for plugin
+
+plugin-dir: plugins
+
+# about datasource
+
+datasource-config:
+  random:
+    provider: DataSource::RandomDataSource
+    config:
+      seed: 0
+
+primary-datasource: file
+
+# about rendering
+
+filters:
+  layered:
+    provider: Filter::LayeredFilter
+    config:
+      layouts-dir: view
+  markdown_to_html:
+    provider: Filter::MarkdownToHtmlFilter
+    config:
+      code-highlighter: rouge
+  scss: Plugin::Filter::ScssFilter
+
+pipelines:
+  - suffix: .htm .html
+    filters:
+      - layered
+  - name: md
+    suffix: .md
+    filters:
+      - markdown_to_html
+      - layered
+  - suffix: .scss
+    filters:
+      - scss
+
+source-dir: src
+target-dir: out
+
+# about hooks
+
+hooks:
+  feed: Plugin::Generator::FeedGenerator
+
+after-rendering:
+  - name: feed
+    config:
+      type: atom
+      fullpath: /atom.xml
+
+# about preview & deployment
+
+server:
+  local:
+    host: 127.0.0.1
+    port: 4000
+    root: ""
