@@ -7,6 +7,7 @@ module Weboot
 
       def run
         # no operation
+        p 'nop'
       end
 
     end

@@ -4,6 +4,9 @@ module Weboot
       class FeedGenerator
         include ::Weboot::Hook::HookInterface
 
+        def run
+          p 'feed'
+        end
       end
     end
   end

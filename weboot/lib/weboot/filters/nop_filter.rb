@@ -5,6 +5,9 @@ module Weboot
     class NopFilter
       include FilterInterface
 
+      def run(page)
+        p 'nop'
+      end
     end
   end
 end

@@ -6,10 +6,10 @@ module Weboot
     attr_reader :default_level
 
     LEVELS = {
+      :trace => ::Logger::DEBUG,
       :debug => ::Logger::DEBUG,
-      :info => ::Logger::INFO,
-      :notice => ::Logger::WARN,
-      :warn => ::Logger::WARN,
+      :info  => ::Logger::INFO,
+      :warn  => ::Logger::WARN,
       :error => ::Logger::ERROR,
       :fatal => ::Logger::FATAL,
     }.freeze
@@ -25,8 +25,12 @@ module Weboot
 
     def write(level, topic, msg, &block)
       return false unless writable?(level, topic)
-      puts '%s [%s] %s' % [topic, level, msg]
+      puts '[%5s] %s | %s' % [level.upcase, topic, msg]
       # writer.public_send(level, message(topic, msg, &block))
+    end
+
+    def trace(topic, msg, &block)
+      write(:trace, topic, msg, &block)
     end
 
     def debug(topic, msg, &block)
@@ -35,10 +39,6 @@ module Weboot
 
     def info(topic, msg, &block)
       write(:info, topic, msg, &block)
-    end
-
-    def notice(topic, msg, &block)
-      write(:notice, topic, msg, &block)
     end
 
     def warn(topic, msg, &block)

@@ -7,14 +7,14 @@ module Weboot
     end
 
     def add(pipeline)
-      @pipelines.append(pipeline)
+      @pipelines.append pipeline
       name = pipeline.name
       @names[name] = pipeline unless name.nil?
     end
 
     def match(filename)
       @pipelines.each do |pipeline|
-        return pipeline if pipeline.match(filename)
+        return pipeline if pipeline.match? filename
       end
       nil
     end

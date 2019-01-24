@@ -10,6 +10,7 @@ module Weboot
 
     def add(name, instance)
       raise KeyError, 'duplicated datasource name: %s' % [name] if @datasources.key?(name)
+      Weboot.logger.debug :datasource, 'register datasource: %s' % [name]
       @datasources[name] = {
         :datasource => instance,
         :accessor => DataSourceAccessor.new(instance)
@@ -25,6 +26,7 @@ module Weboot
 
     def primary_datasource=(name)
       raise KeyError, 'key not exist: %s' % [name] unless @datasources.key?(name)
+      Weboot.logger.debug :datasource, 'primary datasource = %s' % [name]
       @primary_datasource_name = name
       @primary_datasource_accessor = @datasources[@primary_datasource_name][:accessor]
     end

@@ -5,6 +5,9 @@ module Weboot
     class LayeredFilter
       include FilterInterface
 
+      def run(page)
+        p 'layered'
+      end
     end
   end
 end

@@ -26,12 +26,6 @@ module Weboot
       return if include_policy.nil?
       parse_rules true, include_policy['force-include']
       parse_rules false, include_policy['exclude']
-
-      @rules.append({
-        :func => MATCH_FUNCS[:true],
-        :ref => nil,
-        :policy => self.default_policy
-      })
     end
 
     private def parse_rules(policy, rules)
@@ -86,16 +80,19 @@ module Weboot
     end
 
     def default_policy
-      dig_recursively(%w(include-rules default), :default_policy, true)
+      dig_recursively %w(include-rules default), :default_policy, true
     end
 
     def include?(filename, inheritable_only = false)
       @rules.each do |rule|
         next if inheritable_only and not rule[:inheritable]
-        return rule[:policy] if rule[:func].call(rule[:ref], filename)
+        return rule[:policy] if rule[:func].call rule[:ref], filename
       end
-      return true if @parent.nil?
-      @parent.include?(filename, true)
+      unless @parent.nil?
+        ret = @parent.include? filename, true
+        return ret unless ret.nil?
+      end
+      (inheritable_only) ? nil : default_policy
     end
 
     def merge_page_config

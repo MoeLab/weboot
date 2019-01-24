@@ -24,7 +24,7 @@ module Weboot
         config_stack = ConfigStack.new
         config_stack.push ConfigReader.read(File.join Weboot::SRC_DIR, 'default_site_config.yaml')
         config_stack.push ConfigReader.read(File.join root_dir, 'site_config.yaml')
-        @site = Site.new config_stack.merge, false
+        @site = Site.new config_stack.merge
         @site.root_dir = root_dir
 
         @datasource_manager = DataSourceManager.new
@@ -32,15 +32,18 @@ module Weboot
         @filter_manager = FilterManager.new
         @pipeline_manager = PipelineManager.new
 
-        plugin_dir = @site['plugin-dir']
-        unless plugin_dir.nil?
-          plugin_dir = @site.plugin_dir = File.expand_path(File.join @site.root_dir, plugin_dir)
-          load_plugins(plugin_dir) if Dir.exist?(plugin_dir)
+        plugin_dirs = @site['plugin-dirs']
+        unless plugin_dirs.nil?
+          plugin_dirs.each do |dirname|
+            dirpath = (dirname.start_with? '/') ? dirname : File.expand_path(File.join @site.root_dir, dirname)
+            next unless Dir.exist? dirpath
+            load_plugins dirpath
+          end
         end
 
         datasource_configs = @site['datasource-config']
         unless datasource_configs.nil?
-          datasource_configs.each(&method(:setup_datasource))
+          datasource_configs.each &method(:setup_datasource)
 
           primary_datasource = @site['primary-datasource']
           @datasource_manager.primary_datasource = primary_datasource
@@ -48,17 +51,17 @@ module Weboot
 
         hook_configs = @site['hooks']
         unless hook_configs.nil?
-          hook_configs.each(&method(:setup_hook_builder))
+          hook_configs.each &method(:setup_hook_builder)
         end
 
         filter_configs = @site['filters']
         unless filter_configs.nil?
-          filter_configs.each(&method(:setup_filter_builder))
+          filter_configs.each &method(:setup_filter_builder)
         end
 
         pipeline_configs = @site['pipelines']
         unless pipeline_configs.nil?
-          pipeline_configs.each(&method(:setup_pipeline))
+          pipeline_configs.each &method(:setup_pipeline)
         end
 
         %w(after-scanning after-rendering after-writing).each do |phase|
@@ -69,39 +72,43 @@ module Weboot
           end
         end
 
+        Weboot.logger.debug :configurator, 'site configured'
       end
 
       private def load_plugins(dirpath)
+        Weboot.logger.debug :plugin, 'scan plugins in %s' % [dirpath]
         Dir.each_child(dirpath) do |filename|
           begin
-            fullname = File.join(dirpath, filename)
-            if Dir.exist?(fullname)
+            fullname = File.join dirpath, filename
+            if Dir.exist? fullname
+              Weboot.logger.debug :plugin, 'shot %s (dir)' % [filename]
               require File.join(fullname, 'weboot_manifest.rb')
-            elsif filename.end_with?('.rb')
+            elsif filename.end_with? '.rb'
+              Weboot.logger.debug :plugin, 'shot %s' % [filename]
               require fullname
             end
           rescue LoadError => e
-            Weboot.logger.error(:config_reader, 'plugin load failed: %s' % [e.message])
+            Weboot.logger.error :config_reader, 'plugin load failed: %s' % [e.message]
           end
         end
       end
 
       private def setup_datasource(name, settings)
-        builder = DataSourceBuilder.new(name)
+        builder = DataSourceBuilder.new name
         builder.settings = settings
-        @datasource_manager.add(name, builder.instance)
+        @datasource_manager.add name, builder.instance
       end
 
       private def setup_hook_builder(name, settings)
-        builder = HookBuilder.new(name)
+        builder = HookBuilder.new name
         builder.settings = settings
-        @hook_manager.register(name, builder)
+        @hook_manager.register name, builder
       end
 
       private def setup_filter_builder(name, settings)
-        builder = FilterBuilder.new(name)
+        builder = FilterBuilder.new name
         builder.settings = settings
-        @filter_manager.register(name, builder)
+        @filter_manager.register name, builder
       end
 
       private def setup_pipeline(settings)
@@ -112,22 +119,22 @@ module Weboot
 
         filters = settings['filters']
         filters = (filters.nil?) ? [] : filters.map do |filter_settings|
-          if filter_settings.is_a?(String)
+          if filter_settings.is_a? String
             name = filter_settings
             config = nil
           else
             name = filter_settings['name']
             config = filter_settings['config']
           end
-          original_builder = @filter_manager.get_builder(name)
+          original_builder = @filter_manager.get_builder name
           raise ArgumentError, 'filter not found: %s' % [name] if original_builder.nil?
           builder = original_builder.copy
-          builder.push_config(config)
+          builder.push_config config
           builder
         end
 
-        pipeline = Pipeline.new(name, suffixes, filters)
-        @pipeline_manager.add(pipeline)
+        pipeline = Pipeline.new name, suffixes, filters
+        @pipeline_manager.add pipeline
       end
 
       private def setup_phase_hook_builder(phase, settings)
@@ -138,11 +145,11 @@ module Weboot
           name = settings['name']
           config = settings['config']
         end
-        origin_builder = @hook_manager.get_builder(name)
-        raise ArgumentError, 'hook not found: %s' % [name] if origin_builder.nil?
-        builder = origin_builder.copy
-        builder.push_config(config)
-        @hook_manager.add_phase_hook(phase, builder)
+        original_builder = @hook_manager.get_builder name
+        raise ArgumentError, 'hook not found: %s' % [name] if original_builder.nil?
+        builder = original_builder.copy
+        builder.push_config config
+        @hook_manager.add_phase_hook phase, builder
       end
 
     end

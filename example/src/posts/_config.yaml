@@ -1,2 +1,6 @@
+include-rules:
+  exclude:
+    - 'drafts/'
+
 page:
   prefix: /p

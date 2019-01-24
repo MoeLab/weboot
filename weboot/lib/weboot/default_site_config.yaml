@@ -4,7 +4,8 @@
 
 # config for plugin
 
-plugin-dir: plugins
+plugin-dirs:
+  - plugins
 
 # about datasource
 
