@@ -7,10 +7,10 @@ module Weboot
       def initialize(name, config)
         @name = name
         @config = config
+        after_initialize
       end
 
-      def inspect
-        '%s$%s' % [self.class.name, @name]
+      def after_initialize
       end
 
       def key?(key)
@@ -23,6 +23,10 @@ module Weboot
 
       def set(key, value)
         raise NotImplementedError, self.inspect
+      end
+
+      def inspect
+        '%s$%s' % [self.class.name, @name]
       end
 
     end

@@ -11,7 +11,7 @@ module Weboot
       def scan()
         @pages = []
 
-        source_dir = @site['source-dir']
+        source_dir = @site.source_dir
         @site.source_dir = ::Weboot.assert_dir File.expand_path (source_dir.nil?) ? @site.root_dir : File.join(@site.root_dir, source_dir)
         Weboot.logger.info :scan, 'source-dir = %s' % [@site.source_dir]
 

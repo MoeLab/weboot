@@ -17,6 +17,7 @@ datasource-config:
       readers:
         - suffix: .json
           provider: Reader::JsonReader
+          config: nil
         - suffix: .yaml .yml
           provider: Reader::YamlReader
         - suffix: .csv
@@ -38,8 +39,7 @@ pipelines:
         config:
           hooks:
             - name: nop
-              config:
-                weboot: WEBOOT
+              config: null
             - nop
       - nop
 
@@ -51,8 +51,7 @@ target-dir: out
 hooks:
   nop:
     provider: Hook::NopHook
-    config:
-      weboot: WEBOOT
+    config: null
   feed: Plugin::Generator::FeedGenerator
 
 after-scanning:

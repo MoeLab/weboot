@@ -7,7 +7,7 @@ module Weboot
 
       def run
         # no operation
-        p 'nop'
+        p 'nop %s' %[@config]
       end
 
     end

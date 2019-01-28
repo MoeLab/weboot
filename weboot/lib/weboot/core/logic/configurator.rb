@@ -115,22 +115,11 @@ module Weboot
         name = settings['name']
 
         suffixes = settings['suffix']
-        suffixes = (suffixes.nil?) ? [] : suffixes.split(' ')
+        suffixes = (suffixes || []).split(' ')
 
         filters = settings['filters']
-        filters = (filters.nil?) ? [] : filters.map do |filter_settings|
-          if filter_settings.is_a? String
-            name = filter_settings
-            config = nil
-          else
-            name = filter_settings['name']
-            config = filter_settings['config']
-          end
-          original_builder = @filter_manager.get_builder name
-          raise ArgumentError, 'filter not found: %s' % [name] if original_builder.nil?
-          builder = original_builder.copy
-          builder.push_config config
-          builder
+        filters = (filters || []).map do |filter_settings|
+          @filter_manager.get_builder filter_settings
         end
 
         pipeline = Pipeline.new name, suffixes, filters
@@ -138,18 +127,7 @@ module Weboot
       end
 
       private def setup_phase_hook_builder(phase, settings)
-        if settings.is_a?(String)
-          name = settings
-          config = nil
-        else
-          name = settings['name']
-          config = settings['config']
-        end
-        original_builder = @hook_manager.get_builder name
-        raise ArgumentError, 'hook not found: %s' % [name] if original_builder.nil?
-        builder = original_builder.copy
-        builder.push_config config
-        @hook_manager.add_phase_hook phase, builder
+        @hook_manager.add_phase_hook phase, @hook_manager.get_builder(settings)
       end
 
     end

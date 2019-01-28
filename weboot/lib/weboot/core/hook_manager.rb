@@ -13,8 +13,19 @@ module Weboot
       self
     end
 
-    def get_builder(name)
-      @hooks.fetch name
+    def get_builder(settings)
+      if settings.is_a? String
+        name = settings
+        config = nil
+      else
+        name = settings['name']
+        config = settings['config']
+      end
+      original_builder = @hooks.fetch name
+      raise ArgumentError, 'hook not found: %s' % [name] if original_builder.nil?
+      builder = original_builder.copy
+      builder.push_config config
+      builder
     end
 
     def add_phase_hook(phase, builder)
